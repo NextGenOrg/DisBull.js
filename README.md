@@ -56,9 +56,9 @@ client
   })
   .on("localeChange", (guild, locale) => {
     console.log(oneLine`
-      Locale ${locale ? `changed to ${locale}` : `changed to the default.`}
-      ${guild ? `in guild ${guild.name} (${guild.id})` : "globally"}
-    `);
+			Locale ${locale ? `changed to ${locale}` : `changed to the default.`}
+			${guild ? `in guild ${client.guilds.cache.get(guild).name} (${guild})` : "globally"}
+		`);
   });
 
 client.run();
