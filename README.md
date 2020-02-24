@@ -15,6 +15,7 @@
 
 * [Support server](https://discord.gg/q99CQEP)
 * [Repository](https://github.com/DisBull/DisBull)
+* [Spanish version](https://github.com/DisBull/DisBull.js/blob/master/S-README.md)
 * [Give us a star](https://github.com/DisBull/DisBull/stargazers)
 
 ## Installation
