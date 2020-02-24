@@ -14,7 +14,7 @@
 ##  Enlaces de utilidad
 
 * [Servidor de soporte](https://discord.gg/q99CQEP)
-* Repositorio](https://github.com/DisBull/DisBull)
+* [Repositorio](https://github.com/DisBull/DisBull)
 * [Danos una estrella](https://github.com/DisBull/DisBull/stargazers)
 
 ## Instalación
