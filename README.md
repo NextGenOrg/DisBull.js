@@ -36,18 +36,31 @@ const oneLine = require("common-tags").oneLine;
 const client = new Client({
   owner: ["<your-id>", "<another-id>"],
   commandPrefix: "<your-prefix>",
+  language: "en-us", // default language if you don't have any language registered [en-us or es-mx]
   token: "<secret-token>"
 });
 
-// necessary database (Guild Settings)
+// Optional database, if you want to put custom prefix or multi-lang you must use it
 sqlite.open(path.join(__dirname, "/Data/settings.sqlite3")).then(db => {
   client.setProvider(new SQLiteProvider(db));
 });
 
+// function to register commands
 client.registry.registerCommandsIn(path.join(__dirname, "commands"));
+// function to register events (Optional)
 client.registry.registerEventsIn(path.join(__dirname, "events"));
+// function to register languages, if you have your own languages ​​use this function
 client.registry.registerLocalesIn(path.join(__dirname, "locales"));
+/* 
+        function to register default languages 
+Note:
+this already comes in the message event by default, don't worry about setting it
+*/
+client.registry.registerDefaultLocales()
 
+/* 
+These are the new events they register if changed the prefix or language in a guild
+*/
 client
   .on("commandPrefixChange", (guild, prefix) => {
     console.log(oneLine`
@@ -58,7 +71,7 @@ client
   .on("localeChange", (guild, locale) => {
     console.log(oneLine`
 			Locale ${locale ? `changed to ${locale}` : `changed to the default.`}
-			${guild ? `in guild ${client.guilds.cache.get(guild).name} (${guild})` : "globally"}
+			${guild ? `in guild ${guild.name} (${guild.id})` : "globally"}
 		`);
   });
 
@@ -106,7 +119,6 @@ module.exports = Ping;
 ## Basic Event 
 
 ```js
-const Discord = require("discord.js");
 const { version } = require("disbull.js");
 
 module.exports = class {
@@ -117,10 +129,10 @@ module.exports = class {
 
     async run() {
       
-      this.client.logger.info(`Loading a total of ${this.client.commands.size} command(s).`, { tag: "BOT" });
+      this.client.logger.info(`Loading a total of ${this.client.registry.commands.size} command(s).`, { tag: "BOT" });
       this.client.logger.log(`${this.client.user.tag}, ready to serve ${this.client.users.cache.size} users in ${this.client.guilds.cache.size} servers.`, { tag: "BOT" } );
 
-      let toDisplay = "{USER} on {serversCount} servers".replace("{serversCount}", this.client.guilds.cache.size).replace("{USER}", this.client.user.tag) + " | v" + version;
+      let toDisplay = "on {serversCount} servers".replace("{serversCount}", this.client.guilds.cache.size) + " | " + version;
       
       this.client.user.setPresence({
           status: "dnd",
@@ -136,9 +148,7 @@ module.exports = class {
 ## New locale structure 
 
 ```js
-const {
-    Locale
-} = require('disbull.js')
+const { Locale } = require('disbull.js')
 
 const e = {
     error: "❌",
