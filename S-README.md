@@ -35,29 +35,42 @@ const oneLine = require("common-tags").oneLine;
 const client = new Client({
   owner: ["<your-id>", "<another-id>"],
   commandPrefix: "<your-prefix>",
+  language: "en-us", // idioma predeterminado si no tiene un idioma registrado [en-us o es-mx]
   token: "<secret-token>"
 });
 
-// base de datos necesaria (Configuración del servidor)
+// Base de datos opcional, si desea poner un prefijo personalizado o un idioma múltiple, debe usarlo
 sqlite.open(path.join(__dirname, "/Data/settings.sqlite3")).then(db => {
   client.setProvider(new SQLiteProvider(db));
 });
-// Nota: No usa mucho espacio, esta super optimizada la base
-client.registry.registerCommandsIn(path.join(__dirname, "commands"));
-client.registry.registerEventsIn(path.join(__dirname, "events"));
-client.registry.registerLocalesIn(path.join(__dirname, "locales"));
 
+// función para registrar comandos
+client.registry.registerCommandsIn(path.join(__dirname, "commands"));
+// función para registrar eventos (Opcional)
+client.registry.registerEventsIn(path.join(__dirname, "events"));
+// función para registrar idiomas, si tiene sus propios idiomas use esta función
+client.registry.registerLocalesIn(path.join(__dirname, "locales"));
+/* 
+        función para registrar idiomas predeterminados/sistema
+Nota:
+esto ya viene en el evento mensaje por defecto, no te preocupes por configurarlo
+*/
+client.registry.registerDefaultLocales()
+
+/* 
+Estos son los nuevos eventos que registran si se cambia el prefijo o el idioma en un gremio
+*/
 client
   .on("commandPrefixChange", (guild, prefix) => {
     console.log(oneLine`
-    Prefix ${prefix === "" ? "removed" : `cambiado a ${prefijo || "the default"}`}
+    Prefix ${prefix === "" ? "removed" : `changed to ${prefix || "the default"}`}
     ${guild ? `in guild ${guild.name} (${guild.id})` : "globally"}.
   `);
   })
   .on("localeChange", (guild, locale) => {
     console.log(oneLine`
 			Locale ${locale ? `changed to ${locale}` : `changed to the default.`}
-			${guild ? `in guild ${client.guilds.cache.get(guild).name} (${guild})` : "globally"}
+			${guild ? `in guild ${guild.name} (${guild.id})` : "globally"}
 		`);
   });
 
@@ -105,7 +118,6 @@ module.exports = Ping;
 ## Evento básico 
 
 ```js
-const Discord = require("discord.js");
 const { version } = require("disbull.js");
 
 module.exports = class {
@@ -116,10 +128,10 @@ module.exports = class {
 
     async run() {
       
-      this.client.logger.info(`Cargar un total de comandos de ${this.client.commands.size}`, { tag: "BOT" });
+      this.client.logger.info(`Cargar un total de comandos de ${this.client.registry.commands.size}`, { tag: "BOT" });
       this.client.logger.log('${this.client.user.tag}, listo para servir a un total de ${this.client.users.cache.size} usuarios en el total de ${this.client.guilds.cache.size} servidores `, { tag: "BOT" } );
 
-      let toDisplay = "{USER} en {serversCount} servidores".replace("{serversCount}", this.client.guilds.cache.size).replace("{USER}", this.client.user.tag) + " | v" + version;
+      let toDisplay = "en {serversCount} servidores".replace("{serversCount}", this.client.guilds.cache.size) + " | " + version;
       
       this.client.user.setPresence({
           status: "dnd",
@@ -135,9 +147,7 @@ module.exports = class {
 ## Nuevo idioma estructura   
 
 ```js
-const {
-    Locale
-} = require('disbull.js')
+const { Locale } = require('disbull.js')
 
 const e = {
     error: "❌",
